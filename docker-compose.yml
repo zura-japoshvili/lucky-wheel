@@ -4,6 +4,7 @@ services:
     build: .
     ports:
       - "${PORT}:${PORT}"
+    container_name: lucky-wheel-api
     environment:
       - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}

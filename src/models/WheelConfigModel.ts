@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 interface WheelConfig extends Document {
   sections: {
+    id: string;
     name: string;
     multiplier: number;
   }[];
@@ -10,6 +11,7 @@ interface WheelConfig extends Document {
 const WheelConfigSchema = new Schema<WheelConfig>({
   sections: [
     {
+      id: { type: String, required: true },
       name: { type: String, required: true },
       multiplier: { type: Number, required: true },
     },

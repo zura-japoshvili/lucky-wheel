@@ -5,7 +5,7 @@ import { verifyToken } from '../utils/jwt';
 declare global {
   namespace Express {
     interface Request {
-      user?: string | JwtPayload;
+      user?: JwtPayload & { userId: string }; // Extend the JwtPayload with the userId field
     }
   }
 }
@@ -25,9 +25,15 @@ export const requireAuth = (
 
    try {
      // Verify token
-     const decoded = verifyToken(token);
-     req.user = decoded; // Add user data to req
-     next(); // Continue process
+     const decoded = verifyToken(token); // `decoded` will be of type JwtPayload here
+
+     // Type assertion to ensure decoded has userId
+     if ('userId' in decoded) {
+       req.user = decoded as JwtPayload & { userId: string }; // Cast to the correct type
+       next(); // Continue process
+     } else {
+       return res.status(401).json({ error: "Unauthorized" });
+     }
    } catch (error) {
      return res.status(401).json({ error: "Unauthorized" });
    }

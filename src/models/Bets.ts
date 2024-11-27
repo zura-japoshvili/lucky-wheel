@@ -1,28 +1,22 @@
-import mongoose from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
-const betSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  number: {
-    type: Number,
-    required: true,
-  },
-  won: {
-    type: Boolean,
-    default: false,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+export interface IBet extends Document {
+  _id: any;             
+  userId: string;            
+  sectionId: string;        
+  amount: number;            
+  status: 'active' | 'inactive'; 
+  createdAt: Date;          
+  updatedAt: Date;           
+}
 
-const Bet = mongoose.model('Bet', betSchema);
+const betSchema = new Schema<IBet>({
+  userId: { type: String, required: true },
+  sectionId: { type: String, required: true },
+  amount: { type: Number, required: true },
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+}, { timestamps: true });
 
-export default Bet;
+const BetModel = model<IBet>('Bet', betSchema);
+
+export default BetModel;

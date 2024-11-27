@@ -11,6 +11,7 @@ import errorHandler from "./middlewares/errorHandler";
 import authRoutes from "./routes/authRoutes";
 import migrationRoutes from "./routes/migrationRoutes";
 import wheelRoutes from "./routes/wheelRoutes";
+import betRoutes from "./routes/betRoutes";
 import { requireAuth } from "./middlewares/authMiddleware";
 
 dotenv.config();
@@ -70,6 +71,7 @@ app.use(cors());
 app.use("/api/migration", migrationRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/wheel", requireAuth , wheelRoutes)
+app.use("/api/bet", requireAuth, betRoutes)
 
 // Global error handler
 app.use(errorHandler); 

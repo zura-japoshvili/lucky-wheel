@@ -1,5 +1,5 @@
 import express from 'express';
-import { getWheelConfig } from '../controllers/wheelControllers';
+import { getWheelConfig, spin } from '../controllers/wheelControllers';
 
 const router = express.Router();
 
@@ -40,6 +40,15 @@ router.get('/config', async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
+});
+
+router.post('/config', async (req, res) => {
+    try {
+        await spin(req, res);
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+
 });
 
 export default router;
