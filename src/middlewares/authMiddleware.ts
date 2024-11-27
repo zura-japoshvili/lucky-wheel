@@ -10,21 +10,25 @@ declare global {
   }
 }
 
-export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
-  // 1. გადაჭერი ტოკენი Header-დან
-  const token = req.headers.authorization?.split(' ')[1]; // 'Bearer <token>'
+export const requireAuth = (
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+): any => {
+   // Get token from Header
+   const token = req.headers.authorization?.split(' ')[1]; 
 
-  // თუ ტოკენი არ არის ან ვერ მოიძებნა
-  if (!token) {
-    res.status(401).json({ error: "Unauthorized" });
-  }
+   // If no token, send unauthorized response and end the request
+   if (!token) {
+     return res.status(401).json({ error: "Unauthorized" });
+   }
 
-  try {
-    // 2. ვერიფიცირეთ ტოკენი
-    const decoded = verifyToken(token as string);
-    req.user = decoded; // დაემატე მონაცემები req user-ზე
-    next(); // გააგრძელე პროცესი
-  } catch (error) {
-    res.status(401).json({ error: "Unauthorized" });
-  }
+   try {
+     // Verify token
+     const decoded = verifyToken(token);
+     req.user = decoded; // Add user data to req
+     next(); // Continue process
+   } catch (error) {
+     return res.status(401).json({ error: "Unauthorized" });
+   }
 };
