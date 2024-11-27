@@ -5,7 +5,7 @@ import { getRandomInt } from '../utils/rng';
 import { updateUserBalance } from './userService';
 
 // Main function for spinning the wheel
-export const spinWheel = async (userId: string) => {
+export const spinWheel = async () => {
   // Fetch the wheel configuration
   const wheelConfig = await WheelConfigModel.findOne({ _id: 'MAIN_WHEEL_CONFIG' });
 
@@ -18,18 +18,18 @@ export const spinWheel = async (userId: string) => {
   const randomIndex = getRandomInt(0, wheelConfig.sections.length);
   const winningSection = wheelConfig.sections[randomIndex];
 
-  // Fetch active bets
-  const activeBets = await BetModel.find({ userId, status: 'active' });
+  // Fetch all active bets from all users
+  const activeBets = await BetModel.find({ status: 'active' });
 
-  // If the user's bet matches the winning section
+  // Iterate over all active bets and check for matches
   for (const bet of activeBets) {
     if (bet.sectionId === winningSection.id) {
       // Update user's balance
-      await updateUserBalance(userId, bet.amount * winningSection.multiplier);
+      await updateUserBalance(bet.userId, bet.amount * winningSection.multiplier);
 
       // Record the transaction
       const transaction = new Transaction({
-        userId,
+        userId: bet.userId,
         betId: bet._id,
         amount: bet.amount * winningSection.multiplier,
         type: 'win',
@@ -39,9 +39,10 @@ export const spinWheel = async (userId: string) => {
     }
   }
 
-  // Update bets to inactive
-  await BetModel.updateMany({ userId, status: 'active' }, { status: 'inactive' });
+  // Update all bets to inactive
+  await BetModel.updateMany({ status: 'active' }, { status: 'inactive' });
 
   // Return the result of the wheel
   return winningSection;
 };
+

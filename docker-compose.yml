@@ -32,6 +32,17 @@ services:
       - "27017:27017"
     networks:
       - mongo-network
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_PASSWORD}
+      - ME_CONFIG_MONGODB_URL=${MONGO_URI}
+    ports:
+      - "8081:8081"  # You can access Mongo Express on this port
+    networks:
+      - mongo-network
 networks:
   mongo-network:
     driver: bridge

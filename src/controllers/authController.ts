@@ -21,6 +21,7 @@ export const registerUser = async (req: Request, res: Response) => {
     username,
     email,
     password: hashedPassword,
+    balance: 100 // ALERT: it's not right, but we need to test it
   });
 
   await user.save();

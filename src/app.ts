@@ -40,11 +40,6 @@ const options = {
         },
       },
     },
-    security: [
-      {
-        BearerAuth: [], 
-      },
-    ],
   },
   apis: [
     path.join(__dirname, './routes/*.ts'),  

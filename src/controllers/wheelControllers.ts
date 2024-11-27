@@ -20,9 +20,8 @@ const getWheelConfig = async (req: Request, res: Response) => {
 
 export const spin = async (req: Request, res: Response) => {
   try {
-    const userId = req.user.userId; // Access userId from req.user
 
-    const winningSection = await spinWheel(userId);
+    const winningSection = await spinWheel();
     res.json({
       success: true,
       winningSection: winningSection.id,

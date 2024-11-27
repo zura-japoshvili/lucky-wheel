@@ -8,7 +8,9 @@ export const generateToken = (userId: string | mongoose.Types.ObjectId): string 
 
 export const verifyToken = (token: string): JwtPayload => {
   try {
-    const decoded = jwt.verify(token, 'your-secret-key') as JwtPayload;
+    const jwtSecret = process.env.JWT_SECRET
+
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
     return decoded;
   } catch (error) {
     throw new Error('Invalid token');
