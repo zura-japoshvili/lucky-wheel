@@ -1,5 +1,6 @@
 import WheelConfigModel from "../models/WheelConfigModel";
 import { ReferenceDataEnum } from "../types/enums/referenceDataEnum";
+import logger from "../utils/logger";
 
 const initialWheelConfig = [
   {id: '1', name: 'Section 1', multiplier: 1 },
@@ -23,12 +24,13 @@ const createInitialConfig = async () => {
         sections: initialWheelConfig
       });
 
-      console.log('Wheel configuration initialized:', config);
+      logger.info('Wheel configuration initialized:', config)
+
     } else {
-      console.log('Configuration already exists.');
+      logger.warn("Configuration already exists")
     }
   } catch (err) {
-    console.error('Error initializing configuration:', err);
+    logger.error('Error initializing configuration:', err);
   }
 };
 

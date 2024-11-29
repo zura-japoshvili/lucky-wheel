@@ -18,6 +18,13 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors({
+  origin: ['http://localhost:3000'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
 const options = {
   definition: {
     openapi: "3.0.0", 
@@ -40,6 +47,11 @@ const options = {
         },
       },
     },
+    security: [
+      {
+        BearerAuth: [] as any,
+      },
+    ],
   },
   apis: [
     path.join(__dirname, './routes/*.ts'),  
@@ -49,7 +61,6 @@ const options = {
 
 const specs = swaggerJsdoc(options);
 
-console.log("Generated Swagger specs:", specs);
 
 
 // Response interceptor middleware

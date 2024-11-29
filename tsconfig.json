@@ -11,8 +11,9 @@
     "sourceMap": true,
     "declaration": true,
     "skipLibCheck": true,
-    "strictNullChecks": false
-
+    "strictNullChecks": false,
+    "experimentalDecorators": true, // for class validations
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

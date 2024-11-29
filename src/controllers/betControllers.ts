@@ -1,65 +1,72 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
 import User from '../models/User';
 import BetModel from '../models/Bets';
 import { getUserBetValidation } from '../services/betService';
+import logger from '../utils/logger';
+import TransactionModel from '../models/Transaction';
 
 export const createBet = async (req: Request, res: Response) => {
   const { amount, sectionId } = req.body;
-  const userID = '1'
-
-  const session = await mongoose.startSession(); // start the session
+  const userId = req.user?.userId;
 
   try {
-    session.startTransaction(); // start the transaction
+     // 1. check, if user has enough balance
+     const user = await User.findById(userId);
 
-    // 1. check, if user has enough balance
-    const user = await User.findById(userID).session(session);  // find the user with season
-    if (!user) {
-      throw new Error('User not found');
-    }
+     logger.warn(user)
+     logger.info(userId, "user has enough balance")
 
-    if (user.balance < amount) {
-      throw new Error('Insufficient balance');
-    }
+     if (!user) {
+        throw new Error('User not found');
+     }
 
-    // 2. validate bet
-    await getUserBetValidation(userID,amount, sectionId);
- 
+     if (user.balance < amount) {
+        throw new Error('Insufficient balance');
+     }
 
-    // 3. create transaction
-    const bet = new BetModel({
-      userId: user._id,
-      amount,
-      sectionId,
-      status: 'active',  // active bet
-    });
+     // 2. validate bet
+     await getUserBetValidation(userId, amount, sectionId);
 
-    // 4. 
-    await bet.save({ session });
+     // 3. create transaction
+     const bet = new BetModel({
+        userId: user._id,
+        amount,
+        sectionId,
+        status: 'active',
+     });
 
-    // 5. 
-    user.balance -= amount;
-    await user.save({ session });
+     // 4. save bet
+     await bet.save();
 
-    // 6. 
-    user.activeBets.push(bet._id);
-    await user.save({ session });
+     // 5. update user balance
+     user.balance -= amount;
+     await user.save();
 
-    await session.commitTransaction(); // if everything is completed
 
-    res.status(201).json({
-      success: true,
-      message: 'Bet created successfully',
-      betId: bet._id,
-    });
+      // 6. Create a transaction entry for the bet
+      const transaction = new TransactionModel({
+         userId: user._id,
+         amount,
+         type: 'bet',
+         sectionId,
+      });
+
+      await transaction.save();
+
+
+     // 7. add bet to user's active bets
+     user.activeBets.push(bet._id);
+     await user.save();
+
+     res.status(201).json({
+        success: true,
+        message: 'Bet created successfully',
+        betId: bet._id,
+     });
   } catch (error) {
-    await session.abortTransaction(); // if something is wrong, cancel the transaction
+      logger.error("error while creating bet", JSON.stringify(error, null, 2));
 
-    console.error(error);
-    res.status(500).json({ message: 'Error creating bet' });
-  } finally {
-    session.endSession(); // end season
+     res.status(500).json({ message: 'Error creating bet' });
   }
 };
 

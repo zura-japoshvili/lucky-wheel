@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { loginUser, registerUser } from '../controllers/authController';
+import logger from '../utils/logger';
 
 const router: Router = Router();
 
@@ -31,6 +32,7 @@ router.post('/login', async (req: Request, res: Response) => {
   try {
     await loginUser(req, res);
   } catch (error) {
+    logger.error(error)
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -69,6 +71,7 @@ router.post('/register', async (req: Request, res: Response) => {
   try {
     await registerUser(req, res);
   } catch (error) {
+    logger.error(error)
     res.status(500).json({ message: 'Internal server error' });
   }
 });

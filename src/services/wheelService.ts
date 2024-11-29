@@ -1,48 +1,77 @@
 import BetModel from '../models/Bets';
-import Transaction from '../models/Transaction'; // Transaction model
 import WheelConfigModel from '../models/WheelConfigModel';
-import { getRandomInt } from '../utils/rng';
-import { updateUserBalance } from './userService';
+import User from '../models/User';
+import { ReferenceDataEnum } from '../types/enums/referenceDataEnum';
+import TransactionModel from '../models/Transaction';
+import logger from '../utils/logger';
 
 // Main function for spinning the wheel
 export const spinWheel = async () => {
-  // Fetch the wheel configuration
-  const wheelConfig = await WheelConfigModel.findOne({ _id: 'MAIN_WHEEL_CONFIG' });
+  const wheelConfig = await WheelConfigModel.findOne({ _id: ReferenceDataEnum.MAIN_WHEEL_CONFIG });
+  if (!wheelConfig) throw new Error('Wheel configuration not found');
 
-  // If the configuration is not found, it is insufficient
-  if (!wheelConfig) {
-    throw new Error('Wheel configuration not found');
-  }
-
-  // Select a random section
-  const randomIndex = getRandomInt(0, wheelConfig.sections.length);
+  // const randomIndex = getRandomInt(0, wheelConfig.sections.length);
+  const randomIndex = 1;
   const winningSection = wheelConfig.sections[randomIndex];
 
-  // Fetch all active bets from all users
-  const activeBets = await BetModel.find({ status: 'active' });
+  try {
+    // Find active bets for the winning section
+    const activeBets = await BetModel.find({
+      status: 'active',
+      sectionId: winningSection.id
+    });
 
-  // Iterate over all active bets and check for matches
-  for (const bet of activeBets) {
-    if (bet.sectionId === winningSection.id) {
-      // Update user's balance
-      await updateUserBalance(bet.userId, bet.amount * winningSection.multiplier);
+    const betIds = [];
 
-      // Record the transaction
-      const transaction = new Transaction({
-        userId: bet.userId,
-        betId: bet._id,
-        amount: bet.amount * winningSection.multiplier,
-        type: 'win',
-        status: 'completed',
-      });
-      await transaction.save();
+    // Update users' balances and transactions for winning bets
+    if (activeBets.length > 0) {
+      const userIds = [];
+
+      for (const bet of activeBets) {
+        betIds.push(bet._id);
+
+        // Update user balance
+        await User.updateOne(
+          { _id: bet.userId },
+          {
+            $inc: { balance: bet.amount * winningSection.multiplier }
+          }
+        );
+
+        // Save transaction
+        const transaction = new TransactionModel({
+          userId: bet.userId,
+          amount: bet.amount * winningSection.multiplier,
+          type: 'win',
+          sectionId: bet.sectionId,
+          createdAt: new Date(),  
+        });
+
+        await transaction.save(); 
+
+        // Collect user IDs to update activeBets field later
+        userIds.push(bet.userId);
+      }
+
+      // Remove winning bets from activeBets field for users
+      await User.updateMany(
+        { _id: { $in: userIds } },
+        { $pull: { activeBets: { $in: activeBets.map(bet => bet._id) } } }
+      );
     }
+
+    // Update all collected active bets to 'inactive' status
+    await BetModel.updateMany(
+      { _id: { $in: betIds } }, 
+      { $set: { status: 'inactive' } } 
+    );
+
+
+    return winningSection;
+  } catch (error) {
+    logger.error('Error occurred while spinning the wheel:', error);
+    throw new Error('Error occurred while spinning the wheel');
   }
-
-  // Update all bets to inactive
-  await BetModel.updateMany({ status: 'active' }, { status: 'inactive' });
-
-  // Return the result of the wheel
-  return winningSection;
 };
+
 

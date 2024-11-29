@@ -26,3 +26,6 @@ export const getUserBetValidation = async (userId: string, amount: number, secti
 
   return bet;
 };
+
+
+
