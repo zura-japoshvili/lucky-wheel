@@ -1,6 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { loginUser, registerUser } from '../controllers/authController';
 import logger from '../utils/logger';
+import { validateDto } from '../middlewares/validateDto';
+import { loginDto } from '../types/dtos/loginDto';
+import { registerDto } from '../types/dtos/registerDto';
 
 const router: Router = Router();
 
@@ -28,7 +31,7 @@ const router: Router = Router();
  *       200:
  *         description: Successfully authenticated
  */
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login',validateDto(loginDto) ,async (req: Request, res: Response) => {
   try {
     await loginUser(req, res);
   } catch (error) {
@@ -59,6 +62,8 @@ router.post('/login', async (req: Request, res: Response) => {
  *                 type: string
  *               password:
  *                 type: string
+ *               confirmPassword:
+ *                 type: string
  *     responses:
  *       200:
  *         description: User registered successfully
@@ -67,7 +72,7 @@ router.post('/login', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', validateDto(registerDto) ,async (req: Request, res: Response) => {
   try {
     await registerUser(req, res);
   } catch (error) {

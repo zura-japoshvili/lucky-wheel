@@ -6,7 +6,11 @@ import { generateToken } from '../utils/jwt';
 
 
 export const registerUser = async (req: Request, res: Response) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, confirmPassword} = req.body;
+
+  if (password!== confirmPassword) {
+    return res.status(400).json({ message: 'Passwords do not match' });
+  }
 
   const existingUser = await User.findOne({ email });
 
