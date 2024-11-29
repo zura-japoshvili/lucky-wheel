@@ -28,4 +28,7 @@ export const getUserBetValidation = async (userId: string, amount: number, secti
 };
 
 
+export const getBettingHistoryByUser = async (userId: string) => {
+  return await BetModel.find({ userId });
+};
 

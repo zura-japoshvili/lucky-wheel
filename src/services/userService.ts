@@ -10,3 +10,10 @@ export const updateUserBalance = async (userId: string, amount: number) => {
   user.balance += amount; // Add the winning amount (or subtract if lost)
   await user.save();
 };
+
+
+export const getUserBalanceByUser = async (userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+  return user.balance;
+};
