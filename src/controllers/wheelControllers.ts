@@ -24,7 +24,7 @@ export const spin = async (req: Request, res: Response) => {
 
     const winningSection = await spinWheel();
     res.json({
-      winningSection: winningSection.id,
+      winningSection: winningSection.result.id,
     });
   } catch (error) {
     logger.error('Error spinning the wheel:', error);

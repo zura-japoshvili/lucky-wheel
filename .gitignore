@@ -2,4 +2,4 @@ package-lock.json
 node_modules
 .env
 dist
-mongo-init.js
+coverage

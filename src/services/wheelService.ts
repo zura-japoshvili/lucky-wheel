@@ -4,30 +4,32 @@ import User from '../models/User';
 import { ReferenceDataEnum } from '../types/enums/referenceDataEnum';
 import TransactionModel from '../models/Transaction';
 import logger from '../utils/logger';
+import { generateVerificationHash } from '../utils/verificationHash';
+import { spinWheelRNG } from '../utils/rng';
 
 // Main function for spinning the wheel
 export const spinWheel = async () => {
   const wheelConfig = await WheelConfigModel.findOne({ _id: ReferenceDataEnum.MAIN_WHEEL_CONFIG });
   if (!wheelConfig) throw new Error('Wheel configuration not found');
 
-  // const randomIndex = getRandomInt(0, wheelConfig.sections.length);
-  const randomIndex = 1;
-  const winningSection = wheelConfig.sections[randomIndex];
+  const winningSection = spinWheelRNG(wheelConfig.sections);
+
 
   try {
     // Find active bets for the winning section
     const activeBets = await BetModel.find({
       status: 'active',
-      sectionId: winningSection.id
     });
+    if (activeBets.length === 0) throw new Error('No active bets');
 
-    const betIds = [];
+    const betIds = activeBets.map((bet) => bet._id);
+    const winningBets = betIds.filter((bet) => bet.sectionId === winningSection.id);
 
     // Update users' balances and transactions for winning bets
-    if (activeBets.length > 0) {
+    if (winningBets.length > 0) {
       const userIds = [];
 
-      for (const bet of activeBets) {
+      for (const bet of winningBets) {
         betIds.push(bet._id);
 
         // Update user balance
@@ -66,9 +68,26 @@ export const spinWheel = async () => {
       { $set: { status: 'inactive' } } 
     );
 
+    const data = {
+      result: {...winningSection},
+      verificationHash: generateVerificationHash(winningSection),
+      animationData: {
+        startDelay: 300, // 300ms second delay before spin starts
+        spinDuration: 5000, // 4 seconds spin duration
+        revolutions: 10, // 10 revolutions
+      }
+    };
 
-    return winningSection;
-  } catch (error) {
+
+    logger.info("Wheel spin results:" + JSON.stringify(data, null, 2));
+
+    return data;
+  } catch (error: any) {
+    if (error.message === 'No active bets') {
+      logger.error('No active bets error occurred:', error);
+      throw new Error(error.message); 
+    }
+
     logger.error('Error occurred while spinning the wheel:', error);
     throw new Error('Error occurred while spinning the wheel');
   }

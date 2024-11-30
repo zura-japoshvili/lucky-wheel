@@ -40,7 +40,8 @@ Optional but recommended for development:
 2. Create a .env file from the provided .env.example:
     ```bash
         cp .env.example .env
-        Update the .env file with your specific environment variables, if necessary.
+    ```
+    Update the .env file with your specific environment variables, if necessary.
 
 3. Build and start the application using Docker Compose:
     ```bash
@@ -54,7 +55,6 @@ Optional but recommended for development:
 - If you need to stop the application, use:  
   ```bash
   docker-compose down
-
 ### For testing, run
  ```bash
     docker exec -it <container_name> npm test
