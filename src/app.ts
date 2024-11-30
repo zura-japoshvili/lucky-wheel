@@ -1,7 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import path from "path";  
@@ -14,16 +13,29 @@ import wheelRoutes from "./routes/wheelRoutes";
 import betRoutes from "./routes/betRoutes";
 import userRoutes from "./routes/userRoutes";
 import { requireAuth } from "./middlewares/authMiddleware";
+import rateLimit from "express-rate-limit";
+import config from "./config/config";
 
-dotenv.config();
 
 const app = express();
 
+const FULL_API_URL = `${config.API_URL}:${config.port}`;
+
+
 app.use(cors({
-  origin: ['http://localhost:3000'], 
+  origin: [FULL_API_URL], 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Define a rate limiter with options
+const apiLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+app.use(apiLimiter); // add a rate limiter
 
 
 const options = {
@@ -36,7 +48,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
+        url: FULL_API_URL,
       },
     ],
     components: {

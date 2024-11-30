@@ -1,11 +1,9 @@
 import winston from 'winston';
 import MongoDB from 'winston-mongodb';
+import config from '../config/config';
 
-// Ensure environment variables are loaded
-import dotenv from 'dotenv';
-dotenv.config();
 
-const mongoURI = process.env.MONGO_URI as string;
+const mongoURI = config.mongoURI as string;
 
 
 // Create logger
