@@ -65,6 +65,9 @@ Optional but recommended for development:
 
 This project includes **Swagger** for API testing and documentation. Swagger provides an interactive interface to test endpoints, review request/response schemas, and understand the application's functionality.
 
+> [!INFO]
+> Each field in the request payload undergoes validation using **DTO (Data Transfer Object)** classes to ensure the data meets the required format and constraints. This helps maintain data integrity and enhances the reliability of the application.
+
 **Accessing Swagger Documentation**
 Once the application is running, access the Swagger UI at:
 
@@ -79,20 +82,25 @@ For example, if PORT=3000, the Swagger documentation will be available at:
 
 ### Features in Swagger:
 
-Explore all API endpoints interactively
-Test requests with real data
-Review detailed request and response examples
-Let’s now document the specific endpoints in the API using the README style:
+- **Interactive exploration:** View and test all available API endpoints.
+- **Real data testing:** Send test requests to endpoints and receive responses.
+- **Detailed request/response examples:** Review examples to understand expected data structures and interactions.
 
-### Endpoints:
-- POST /api/auth/register
+## Endpoints:
+
 - POST /api/auth/login
 - GET /api/wheel/config
 - POST /api/bets/place
 - POST /api/wheel/spin
 - GET /api/user/history
 - GET /api/user/balance
-- POST /api/migration/run
+- POST /api/auth/register
+- POST /api/migration/run 
+
+ **Description:**   endpoint triggers the **migration** process to initialize the database with the required data. It is essential to run this step when setting up the application for the first time to ensure the database is properly configured.
+
+ > [!WARNING]
+ > Important: Before using the application, you must run the initial migration using the **/api/migration/run** endpoint to load the default wheel configuration into the database. Failure to do so may result in unexpected behavior.
+
+
  
-> [!WARNING]
-> Important: Before using the application, you must run the initial migration using the **/api/migration/run** endpoint to load the default wheel configuration into the database. Failure to do so may result in unexpected behavior.
