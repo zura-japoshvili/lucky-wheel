@@ -41,7 +41,38 @@ Optional but recommended for development:
     ```bash
         cp .env.example .env
     ```
-    Update the .env file with your specific environment variables, if necessary.
+    Update the .env file with your specific environment variables.
+    
+    #### Example of .env file
+    
+    ```bash
+    # MongoDB connection URI (the full path used to connect to the database)
+    MONGO_URI=mongodb://<USERNAME>:<PASSWORD>@mongo:27017
+
+    # MongoDB username for authentication
+    MONGO_USERNAME=YOUR_MONGO_USERNAME
+
+    # MongoDB password for authentication
+    MONGO_PASSWORD=YOUR_MONGO_PASSWORD
+
+    # Mongo Express UserName
+    MONGO_EXPRESS_LOGIN=YOUR_MONGO_EXPRESS_USERNAME
+
+    # Mongo Express Password for authentication
+    MONGO_EXPRESS_PASSWORD=YOUR_MONGO_EXPRESS_PASSWORD
+
+    # Port on which the application will run
+    PORT=3000
+
+    # Environment type (e.g., development, production)
+    NODE_ENV=development
+
+    # JWT secret key for signing and verifying tokens
+    JWT_SECRET=YOUR_JWT_SECRET
+
+    # API URL for the application
+    API_URL=http://localhost
+
 
 3. Build and start the application using Docker Compose:
     ```bash
@@ -102,5 +133,12 @@ For example, if PORT=3000, the Swagger documentation will be available at:
  > [!WARNING]
  > Important: Before using the application, you must run the initial migration using the **/api/migration/run** endpoint to load the default wheel configuration into the database. Failure to do so may result in unexpected behavior.
 
-
+## Assumptions Made
+ - **Database Connectivity:** It is assumed that MongoDB is running and accessible at the URI specified in the .env file. Ensure that the database credentials and host are correctly configured for successful connection.
+ - **Docker Setup:** The project assumes Docker and Docker Compose are set up and running properly on the host machine. It is required for building and running the application container.
+ - **Environment Variables:** The application relies on environment variables defined in the .env file. All required variables must be set to ensure proper application behavior.
+- **Node.js and npm:** The project assumes that Node.js and npm are installed on your machine to run the application and its tests.
+    Testing Framework: Jest is used as the testing framework, and tests are run inside a Docker container for consistent execution. The project assumes familiarity with running containerized tests.
+- **Code Structure:** The code follows best practices for modularity and readability. It is assumed that developers working on this project are comfortable navigating and understanding the project structure, which includes the use of DTOs (Data Transfer Objects) for data validation.
+- **API Endpoint** and Data Format: The project assumes that API endpoints are consumed based on the documented payloads and response formats. The application expects JSON-formatted data for all interactions.
  
