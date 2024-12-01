@@ -1,72 +1,49 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
-import BetModel from '../models/Bets';
 import { getUserBetValidation } from '../services/betService';
 import logger from '../utils/logger';
-import TransactionModel from '../models/Transaction';
+import { addBetToActiveBets, updateUserBalanceAfterBet, validateUserBalance } from '../services/userService';
+import { createBetTransaction } from '../services/transactionsService';
 
 export const createBet = async (req: Request, res: Response) => {
-  const { amount, sectionId } = req.body;
-  const userId = req.user?.userId;
+   const { amount, sectionId } = req.body;
+   const userId = req.user?.userId;
+  logger.info("USERID" + userId);
 
-  try {
-     // 1. check, if user has enough balance
-     const user = await User.findById(userId);
+   try {
+     // 1. Check user balance
+     const user = await validateUserBalance(userId, amount);
 
-     logger.warn(user)
-     logger.info(userId, "user has enough balance")
-
-     if (!user) {
-        throw new Error('User not found');
-     }
-
-     if (user.balance < amount) {
-        throw new Error('Insufficient balance');
-     }
-
-     // 2. validate bet
+     logger.info('balance')
+ 
+     // 2. Validate bet
      await getUserBetValidation(userId, amount, sectionId);
 
-     // 3. create transaction
-     const bet = new BetModel({
-        userId: user._id,
-        amount,
-        sectionId,
-        status: 'active',
-     });
+     logger.info('bet')
+ 
+     // 3. Create bet and transaction
+     const bet = await createBetTransaction(userId, amount, sectionId);
 
-     // 4. save bet
-     await bet.save();
+     logger.info('tra');
+ 
+     // 4. Update user balance
+     await updateUserBalanceAfterBet(userId, amount);
+     logger.info('4');
+ 
+     // 5. Add bet to user's active bets
+     await addBetToActiveBets(user, bet._id);
 
-     // 5. update user balance
-     user.balance -= amount;
-     await user.save();
-
-
-      // 6. Create a transaction entry for the bet
-      const transaction = new TransactionModel({
-         userId: user._id,
-         amount,
-         type: 'bet',
-         sectionId,
-      });
-
-      await transaction.save();
-
-
-     // 7. add bet to user's active bets
-     user.activeBets.push(bet._id);
-     await user.save();
-
+      logger.info('active');
+ 
      res.status(201).json({
-        success: true,
-        message: 'Bet created successfully',
-        betId: bet._id,
+       success: true,
+       message: 'Bet created successfully',
+       betId: bet._id,
      });
-  } catch (error) {
-      logger.error("error while creating bet", JSON.stringify(error, null, 2));
+   } catch (error) {
+     logger.error('Error while creating bet', JSON.stringify(error, null, 2));
+     res.status(500).json({ message: 'Error while creating bet' });
+   }
+ };
 
-     res.status(500).json({ message: 'Error creating bet' });
-  }
-};
+
 

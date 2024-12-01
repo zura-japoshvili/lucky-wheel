@@ -10,6 +10,6 @@ const wheelSchema = new mongoose.Schema({
   },
 });
 
-const Wheel = mongoose.model('Wheel', wheelSchema);
+const WheelModel = mongoose.model('Wheel', wheelSchema);
 
-export default Wheel;
+export default WheelModel;

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import User from '../models/User';
+import UserModel from '../models/UserModel';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../utils/jwt';
 
@@ -12,7 +12,7 @@ export const registerUser = async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Passwords do not match' });
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await UserModel.findOne({ email });
 
   if (existingUser) {
     return res.status(409).json({ message: 'User already exists' });
@@ -21,7 +21,7 @@ export const registerUser = async (req: Request, res: Response) => {
   const SALT_ROUNDS = 10;
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-  const user = new User({
+  const user = new UserModel({
     username,
     email,
     password: hashedPassword,
@@ -44,7 +44,7 @@ export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
 
-  const user = await User.findOne({ email });
+  const user = await UserModel.findOne({ email });
 
   if (!user) {
     return res.status(400).json({ message: 'Invalid credentials' });

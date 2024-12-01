@@ -1,8 +1,8 @@
-import BetModel from '../models/Bets';
+import BetModel from '../models/BetModel';
 import WheelConfigModel from '../models/WheelConfigModel';
-import User from '../models/User';
+import User from '../models/UserModel';
 import { ReferenceDataEnum } from '../types/enums/referenceDataEnum';
-import TransactionModel from '../models/Transaction';
+import TransactionModel from '../models/TransactionModel';
 import logger from '../utils/logger';
 import { generateVerificationHash } from '../utils/verificationHash';
 import { spinWheelRNG } from '../utils/rng';
@@ -12,7 +12,10 @@ export const spinWheel = async () => {
   const wheelConfig = await WheelConfigModel.findOne({ _id: ReferenceDataEnum.MAIN_WHEEL_CONFIG });
   if (!wheelConfig) throw new Error('Wheel configuration not found');
 
-  const winningSection = spinWheelRNG(wheelConfig.sections);
+  const wheelSections = wheelConfig.sections;
+
+  const winningSection = spinWheelRNG(wheelSections);
+
 
 
   try {
@@ -23,7 +26,7 @@ export const spinWheel = async () => {
     if (activeBets.length === 0) throw new Error('No active bets');
 
     const betIds = activeBets.map((bet) => bet._id);
-    const winningBets = betIds.filter((bet) => bet.sectionId === winningSection.id);
+    const winningBets = activeBets.filter((bet) => bet.sectionId === winningSection.id);
 
     // Update users' balances and transactions for winning bets
     if (winningBets.length > 0) {
@@ -69,7 +72,7 @@ export const spinWheel = async () => {
     );
 
     const data = {
-      result: {...winningSection},
+      result: JSON.parse(JSON.stringify(winningSection)),
       verificationHash: generateVerificationHash(winningSection),
       animationData: {
         startDelay: 300, // 300ms second delay before spin starts
@@ -79,7 +82,7 @@ export const spinWheel = async () => {
     };
 
 
-    logger.info("Wheel spin results:" + JSON.stringify(data, null, 2));
+    logger.info("Wheel spin results:" + JSON.stringify(data.result, null, 2));
 
     return data;
   } catch (error: any) {

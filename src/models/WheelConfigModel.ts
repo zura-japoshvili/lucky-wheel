@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import logger from '../utils/logger';
 
 interface WheelConfig extends Document {
   sections: {
@@ -32,6 +33,7 @@ const WheelConfigSchema = new Schema<WheelConfig>({
 // Ensure that total probability of all sections equals 1 before saving
 WheelConfigSchema.pre('save', function (next) {
   const totalProbability = this.sections.reduce((sum, section) => sum + section.probability, 0);
+  logger.info(`Total probability of all sections equals ${totalProbability}`);
   if (totalProbability !== 1) {
     return next(new Error('Total probability must equal 1'));
   }

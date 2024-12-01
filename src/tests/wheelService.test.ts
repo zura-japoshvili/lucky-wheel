@@ -1,17 +1,17 @@
 import mongoose from 'mongoose';
 import { ReferenceDataEnum } from '../types/enums/referenceDataEnum';
 import WheelConfigModel from '../models/WheelConfigModel';
-import BetModel from '../models/Bets';
-import User from '../models/User';
+import BetModel from '../models/BetModel';
+import User from '../models/UserModel';
 import { generateVerificationHash } from '../utils/verificationHash';
-import TransactionModel from '../models/Transaction';
+import TransactionModel from '../models/TransactionModel';
 import { spinWheel } from '../services/wheelService';
 
 // Mock dependencies
 jest.mock('../models/WheelConfigModel');
-jest.mock('../models/Bets');
-jest.mock('../models/User');
-jest.mock('../models/Transaction');
+jest.mock('../models/BetModel');
+jest.mock('../models/UserModel');
+jest.mock('../models/TransactionModel');
 jest.mock('../utils/verificationHash');
 jest.mock('../utils/logger', () => ({
   info: jest.fn(),

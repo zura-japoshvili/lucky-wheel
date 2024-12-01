@@ -69,22 +69,36 @@ describe('Wheel Controller', () => {
   describe('spin', () => {
     it('should successfully spin the wheel', async () => {
       const mockSpinResult = {
-        winningSection: {
+        result: {
           id: '2',
-          multiplier: 2
+          multiplier: 2 
+        },
+        verificationHash: 'someHashValue',
+        animationData: {
+          startDelay: 300,
+          spinDuration: 5000,
+          revolutions: 10,
         }
       };
-
-      (spinWheel as jest.Mock).mockResolvedValue({
-        result: { id: '2' }
-      });
-
+    
+      (spinWheel as jest.Mock).mockResolvedValue(mockSpinResult);
+    
       await spin(mockReq, mockRes);
-
+    
       expect(mockRes.json).toHaveBeenCalledWith({
-        winningSection: '2'
+        result: {
+          id: '2',
+          multiplier: 2 
+        },
+        verificationHash: 'someHashValue',
+        animationData: {
+          startDelay: 300,
+          spinDuration: 5000,
+          revolutions: 10,
+        }
       });
     });
+    
 
     it('should return 500 on spin error', async () => {
       (spinWheel as jest.Mock).mockRejectedValue(new Error('Spin failed'));

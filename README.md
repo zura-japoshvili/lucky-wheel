@@ -65,7 +65,7 @@ Optional but recommended for development:
 
 This project includes **Swagger** for API testing and documentation. Swagger provides an interactive interface to test endpoints, review request/response schemas, and understand the application's functionality.
 
-> [!INFO]
+> [!NOTE]
 > Each field in the request payload undergoes validation using **DTO (Data Transfer Object)** classes to ensure the data meets the required format and constraints. This helps maintain data integrity and enhances the reliability of the application.
 
 **Accessing Swagger Documentation**

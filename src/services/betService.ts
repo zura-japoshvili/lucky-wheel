@@ -1,15 +1,11 @@
-import BetModel from '../models/Bets';
-import User from '../models/User';
+import BetModel from '../models/BetModel';
+import User from '../models/UserModel';
 
 export const getUserBetValidation = async (userId: string, amount: number, sectionId: string) => {
   // 1. validate user and balance
   const user = await User.findById(userId);
   if (!user) {
     throw new Error('User not found');
-  }
-
-  if (user.balance < amount) {
-    throw new Error('Insufficient balance');
   }
 
   // 2. bet validation
